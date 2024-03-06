@@ -1,0 +1,25 @@
+{
+  "canisters": {
+    "chunking_backend": {
+      "main": "src/chunking_backend/main.mo",
+      "type": "motoko"
+    },
+    "chunking_frontend": {
+      "dependencies": [
+        "chunking_backend"
+      ],
+      "source": [
+        "src/chunking_frontend/assets"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
