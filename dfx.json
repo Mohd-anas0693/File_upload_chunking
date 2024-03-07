@@ -8,8 +8,12 @@
       "dependencies": [
         "chunking_backend"
       ],
+      "frontend":{
+        "entrypoint":"src/chunking_frontend/src/index.html"
+      },
       "source": [
-        "src/chunking_frontend/assets"
+        "src/chunking_frontend/assets",
+        "dist/chunking_frontend/"
       ],
       "type": "assets"
     }
