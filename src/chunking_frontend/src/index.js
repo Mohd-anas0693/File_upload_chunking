@@ -35,17 +35,19 @@ const upload = async () => {
 };
 
 const loadImage = (batch_name) => {
+    console.log("HERE");
     if (!batch_name) {
         return;
     }
     const newImage = document.createElement('img');
-    newImage.src = `http://127.0.0.1:4943/?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai/assets/${batch_name}`;
+    newImage.src = `http://bw4dl-smaaa-aaaaa-qaacq-cai.localhost:4943/assets/${batch_name}`;
     console.log(batch_name);
     const img = document.querySelector('section:last-of-type img');
     img?.parentElement.removeChild(img);
 
-    const section = document.querySelector('input');
+    const section = document.querySelector('#renderImg');
     section?.appendChild(newImage);
+    console.log("APPENDED IMG");
 
 }
 const input = document.querySelector('input');
@@ -54,4 +56,16 @@ input?.addEventListener('change', (event) => {
 
 });
 const btnUpload = document.querySelector('button.upload');
-btnUpload?.addEventListener('click', await upload);
+btnUpload?.addEventListener('click', upload);
+
+
+// Example usage in JavaScript
+const assetKey = "7_6#D2demo"; // Replace with the actual asset key
+const fileExists = await chunking_backend.fileExists(assetKey);
+if (fileExists) {
+    console.log("FIle exist");
+    // File exists, perform actions
+} else {
+    console.log("FIle not exist");
+    // File does not exist, handle accordingly
+}

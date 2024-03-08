@@ -10,24 +10,35 @@ import Principal "mo:base/Principal";
 import Blob "mo:base/Blob";
 import Iter "mo:base/Iter";
 import Error "mo:base/Error";
+import Debug "mo:base/Debug";
 
 actor Assets {
   private var nextChunkID : Nat = 0;
   private let chunks : HashMap.HashMap<Nat, Types.Chunk> = HashMap.HashMap<Nat, Types.Chunk>(0, Nat.equal, Hash.hash);
   private let assets : HashMap.HashMap<Text, Types.Assets> = HashMap.HashMap<Text, Types.Assets>(0, Text.equal, Text.hash);
 
+  public shared func fileExists(assetKey : Text) : async Bool {
+    let asset : ?Types.Assets = assets.get(assetKey);
+    switch (asset) {
+      case (?_) { return true }; // Asset exists
+      case (null) { return false } // Asset does not exist
+    };
+  };
+
   public shared ({ caller }) func create_Chunk(chunk : Types.Chunk) : async {
     chunkId : Nat;
-    
+
   } {
     nextChunkID := nextChunkID + 1;
     chunks.put(nextChunkID, chunk);
     return { chunkId = nextChunkID };
   };
+
   public shared query ({ caller }) func http_request(request : Types.HttpRequest) : async Types.HttpResponse {
-    if (request.method == "get") {
+    if (request.method == "GET") {
       let split : Iter.Iter<Text> = Text.split(request.url, #char '?');
       let key : Text = Iter.toArray(split)[0];
+      Debug.print("Key extracted from URL: " # key);
       let asset : ?Types.Assets = assets.get(key);
       switch (asset) {
         case (?{ content_type : Text; encoding : Types.AssetEncoding }) {
@@ -42,9 +53,19 @@ actor Assets {
             streaming_stategy = create_strategy(key, 0, { content_type; encoding }, encoding);
           };
         };
-        case (null) {};
+        case (null) {
+          Debug.print("Asset not found for key: " # key);
+          return {
+            body = Blob.toArray(Text.encodeUtf8("Not Found!"));
+            headers = [];
+            status_code = 404;
+            streaming_stategy = null;
+          };
+        };
       };
     };
+
+    Debug.print("Request method is not 'get'");
     return {
       body = Blob.toArray(Text.encodeUtf8("Premission Denied. could not pefrom this operation"));
       headers = [];
@@ -52,6 +73,7 @@ actor Assets {
       streaming_stategy = null;
     };
   };
+
   private func create_strategy(key : Text, index : Nat, asset : Types.Assets, encoding : Types.AssetEncoding) : ?Types.StreamingStrategy {
     switch (create_token(key, index, encoding)) {
       case (null) { null };
